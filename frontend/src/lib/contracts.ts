@@ -4,6 +4,7 @@ import getSdk from '@/lib/dapp-portal';
 import MissionFactoryAbi from '@/lib/abi/MissionFactory.json';
 import RewardDistributorAbi from '@/lib/abi/RewardDistributor.json';
 import IdentityBinderAbi from '@/lib/abi/IdentityBinder.json';
+import MissionPoolAbi from '@/lib/abi/MissionPool.json';
 import { MISSION_FACTORY_ADDRESS, REWARD_DISTRIBUTOR_ADDRESS, IDENTITY_BINDER_ADDRESS } from '@/lib/constants';
 
 export const getProvider = async () => {
@@ -30,4 +31,9 @@ export const getRewardDistributorContract = async () => {
 export const getIdentityBinderContract = async () => {
   const signer = await getSigner();
   return new ethers.Contract(IDENTITY_BINDER_ADDRESS, IdentityBinderAbi, signer);
+};
+
+export const getMissionPoolContract = async (address: string) => {
+  const signer = await getSigner();
+  return new ethers.Contract(address, MissionPoolAbi, signer);
 };

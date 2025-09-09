@@ -375,7 +375,7 @@ export default function Home() {
                     <p className="text-sm text-gray-600 dark:text-gray-400">{testimonial.role}</p>
                   </div>
                 </div>
-                <p className="text-gray-700 dark:text-gray-300 italic">"{testimonial.quote}"</p>
+                <p className="text-gray-700 dark:text-gray-300 italic">&#34;{testimonial.quote}&#34;</p>
                 <div className="flex text-yellow-400 mt-3">
                   {'★'.repeat(5)}
                 </div>

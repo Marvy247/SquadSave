@@ -20,7 +20,11 @@ export const metadata: Metadata = {
   description: "Social Savings Missions Mini-dApp on Kaia",
   keywords: ["savings", "crypto", "Kaia", "blockchain", "social", "missions"],
   authors: [{ name: "SquadSave Team" }],
-  viewport: "width=device-width, initial-scale=1",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
   themeColor: "#3B82F6",
 };
 

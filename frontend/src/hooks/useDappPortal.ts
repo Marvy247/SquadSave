@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import getSdk from '@/lib/dapp-portal';
-import { DappPortalSDK as DappPortalSDKType } from '@linenext/dapp-portal-sdk';
+import DappPortalSDK from '@linenext/dapp-portal-sdk';
 
 const useDappPortal = () => {
-  const [sdk, setSdk] = useState<DappPortalSDKType | null>(null);
+  const [sdk, setSdk] = useState<DappPortalSDK | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 

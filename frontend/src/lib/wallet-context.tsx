@@ -41,7 +41,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     if (!sdk) return;
     try {
       const walletProvider = sdk.getWalletProvider();
-      const accounts = await walletProvider.request({ method: 'kaia_requestAccounts' });
+      const accounts = await walletProvider.request({ method: 'kaia_requestAccounts' }) as string[];
       if (accounts && accounts.length > 0) {
         setAccount(accounts[0]);
         toast.success('Wallet connected successfully! 🎉');

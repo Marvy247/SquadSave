@@ -1,8 +1,8 @@
-import type { DappPortalSDK as DappPortalSDKType } from '@linenext/dapp-portal-sdk';
+import type DappPortalSDK from '@linenext/dapp-portal-sdk';
 
-let sdkInstance: DappPortalSDKType | null = null;
+let sdkInstance: DappPortalSDK | null = null;
 
-const getSdk = async (): Promise<DappPortalSDKType> => {
+const getSdk = async (): Promise<DappPortalSDK> => {
   if (sdkInstance) {
     return sdkInstance;
   }

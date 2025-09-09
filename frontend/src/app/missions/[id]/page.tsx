@@ -43,7 +43,7 @@ export default function MissionDetailPage() {
 
   const [account, setAccount] = useState<string | null>(null);
   const [missionDetails, setMissionDetails] = useState<MissionDetails | null>(null);
-  const [participants, setParticipants] = useState<string[]>([]);
+  const [participants, setParticipants] = useState([] as string[]);
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
   const [depositAmount, setDepositAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
@@ -57,7 +57,8 @@ export default function MissionDetailPage() {
     if (!sdk) return;
     try {
       const walletProvider = sdk.getWalletProvider();
-      const accounts = await walletProvider.request({ method: 'kaia_requestAccounts' });
+      const response = await walletProvider.request({ method: 'kaia_requestAccounts' });
+      const accounts = response as string[];
       if (accounts && accounts.length > 0) {
         setAccount(accounts[0]);
         toast.success('Wallet connected successfully! 🎉');
@@ -78,7 +79,7 @@ export default function MissionDetailPage() {
     try {
       const contract = await getMissionPoolContract(missionId);
       const details = await contract.getMissionDetails();
-      const participantsList = await contract.getParticipants();
+      const participantsList = await contract.getParticipants() as string[];
 
       setMissionDetails({
         asset: details._asset,

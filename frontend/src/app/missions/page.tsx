@@ -34,7 +34,7 @@ export default function MissionsPage() {
     if (!sdk) return;
     try {
       const walletProvider = sdk.getWalletProvider();
-      const accounts = await walletProvider.request({ method: 'kaia_requestAccounts' });
+      const accounts = await walletProvider.request({ method: 'kaia_requestAccounts' }) as string[];
       if (accounts && accounts.length > 0) {
         setAccount(accounts[0]);
         toast.success('Wallet connected successfully! 🎉');
@@ -60,7 +60,7 @@ export default function MissionsPage() {
           try {
             const missionContract = await contract.getMissionPool(missionId);
             const details = await missionContract.getMissionDetails();
-            const participants = await missionContract.getParticipants();
+            const participants = await missionContract.getParticipants() as string[];
 
             return {
               id: missionId,

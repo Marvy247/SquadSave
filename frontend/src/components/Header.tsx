@@ -14,16 +14,13 @@ import {
   SheetTrigger,
 } from './ui/sheet';
 import toast from 'react-hot-toast';
+import { useWallet } from '@/lib/wallet-context';
+import { useTheme } from '@/lib/theme-context';
 
-interface HeaderProps {
-  account: string | null;
-  onConnectWallet: () => void;
-  onDisconnectWallet: () => void;
-  isDark: boolean;
-  toggleDark: () => void;
-}
+export default function Header() {
+  const { account, connectWallet, disconnectWallet } = useWallet();
+  const { isDark, toggleDark } = useTheme();
 
-export default function Header({ account, onConnectWallet, onDisconnectWallet, isDark, toggleDark }: HeaderProps) {
   const copyAddress = () => {
     if (account) {
       navigator.clipboard.writeText(account);
@@ -44,9 +41,9 @@ export default function Header({ account, onConnectWallet, onDisconnectWallet, i
 
         {/* Desktop Navigation - Centered */}
         <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 absolute left-1/2 transform -translate-x-1/2">
-          <Link href="/" className="group flex items-center space-x-1 text-xs lg:text-sm hover:text-primary transition-all duration-200 hover:scale-105">
+          <Link href="/dashboard" className="group flex items-center space-x-1 text-xs lg:text-sm hover:text-primary transition-all duration-200 hover:scale-105">
             <Home className="h-3 w-3 lg:h-4 lg:w-4 group-hover:rotate-12 transition-transform" />
-            <span>Home</span>
+            <span>Dashboard</span>
           </Link>
           <Link href="/missions" className="group flex items-center space-x-1 text-xs lg:text-sm hover:text-primary transition-all duration-200 hover:scale-105">
             <Target className="h-3 w-3 lg:h-4 lg:w-4 group-hover:animate-pulse" />
@@ -58,43 +55,13 @@ export default function Header({ account, onConnectWallet, onDisconnectWallet, i
           </Link>
         </nav>
 
-        {/* Mobile Menu */}
-        <div className="md:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <Menu className="h-4 w-4" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-64">
-              <div className="flex flex-col space-y-2 mt-6">
-                <Link href="/" className="group flex items-center space-x-3 text-base hover:text-primary transition-all duration-200 hover:translate-x-2 py-3 px-2 rounded-lg hover:bg-primary/5">
-                  <Home className="h-4 w-4 group-hover:rotate-12 transition-transform" />
-                  <span>Home</span>
-                  <span className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">🏠</span>
-                </Link>
-                <Link href="/missions" className="group flex items-center space-x-3 text-base hover:text-primary transition-all duration-200 hover:translate-x-2 py-3 px-2 rounded-lg hover:bg-primary/5">
-                  <Target className="h-4 w-4 group-hover:animate-pulse" />
-                  <span>Missions</span>
-                  <span className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">🎯</span>
-                </Link>
-                <Link href="/missions/create" className="group flex items-center space-x-3 text-base hover:text-primary transition-all duration-200 hover:translate-x-2 py-3 px-2 rounded-lg hover:bg-primary/5">
-                  <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform" />
-                  <span>Create Mission</span>
-                  <span className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">🚀</span>
-                </Link>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-
         {/* Right Side Actions */}
         <div className="flex items-center space-x-2 md:space-x-4">
-          <Button variant="ghost" size="sm" onClick={toggleDark} className="h-8 w-8 p-0">
+          <Button variant="ghost" size="sm" onClick={toggleDark} className="h-8 w-8 p-0 cursor-pointer">
             {isDark ? <Sun className="h-3 w-3 md:h-4 md:w-4" /> : <Moon className="h-3 w-3 md:h-4 md:w-4" />}
           </Button>
           {!account ? (
-            <Button onClick={onConnectWallet} size="sm" className="text-xs md:text-sm px-2 md:px-3">
+            <Button onClick={connectWallet} size="sm" className="text-xs md:text-sm px-2 md:px-3 cursor-pointer">
               <Wallet className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
               <span className="hidden sm:inline">Connect Wallet</span>
               <span className="sm:hidden">Connect</span>
@@ -102,7 +69,7 @@ export default function Header({ account, onConnectWallet, onDisconnectWallet, i
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-3">
+                <Button variant="outline" size="sm" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-3 cursor-pointer">
                   <Wallet className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
                   <span className="text-xs md:text-sm hidden sm:inline">
                     {account.substring(0, 6)}...{account.substring(account.length - 4)}
@@ -119,13 +86,42 @@ export default function Header({ account, onConnectWallet, onDisconnectWallet, i
                   Copy Address
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onDisconnectWallet} className="text-sm">
+                <DropdownMenuItem onClick={disconnectWallet} className="text-sm">
                   <LogOut className="h-3 w-3 md:h-4 md:w-4 mr-2" />
                   Disconnect
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+          {/* Mobile Menu */}
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 cursor-pointer">
+                  <Menu className="h-4 w-4" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-64">
+                <div className="flex flex-col space-y-2 mt-6">
+                  <Link href="/" className="group flex items-center space-x-3 text-base hover:text-primary transition-all duration-200 hover:translate-x-2 py-3 px-2 rounded-lg hover:bg-primary/5">
+                    <Home className="h-4 w-4 group-hover:rotate-12 transition-transform" />
+                    <span>Home</span>
+                    <span className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">🏠</span>
+                  </Link>
+                  <Link href="/missions" className="group flex items-center space-x-3 text-base hover:text-primary transition-all duration-200 hover:translate-x-2 py-3 px-2 rounded-lg hover:bg-primary/5">
+                    <Target className="h-4 w-4 group-hover:animate-pulse" />
+                    <span>Missions</span>
+                    <span className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">🎯</span>
+                  </Link>
+                  <Link href="/missions/create" className="group flex items-center space-x-3 text-base hover:text-primary transition-all duration-200 hover:translate-x-2 py-3 px-2 rounded-lg hover:bg-primary/5">
+                    <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform" />
+                    <span>Create Mission</span>
+                    <span className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">🚀</span>
+                  </Link>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>

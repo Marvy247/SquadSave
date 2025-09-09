@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 import useDappPortal from '@/hooks/useDappPortal';
 import { getMissionFactoryContract } from '@/lib/contracts';
 import { useTheme } from '@/lib/theme-context';
+import { useWallet } from '@/lib/wallet-context';
 import { REWARD_DISTRIBUTOR_ADDRESS, USDT_ADDRESS, MOCK_YIELD_STRATEGY_ADDRESS } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,7 @@ import ConfettiComponent from '@/components/Confetti';
 export default function CreateMissionPage() {
   const router = useRouter();
   const { sdk, loading, error } = useDappPortal();
-  const [account, setAccount] = useState<string | null>(null);
+  const { account, connectWallet, disconnectWallet } = useWallet();
   const { isDark, toggleDark } = useTheme();
 
   // Animation variants
@@ -86,25 +87,7 @@ export default function CreateMissionPage() {
 
   const [showConfetti, setShowConfetti] = useState(false);
 
-  const connectWallet = async () => {
-    if (!sdk) return;
-    try {
-      const walletProvider = sdk.getWalletProvider();
-      const accounts = await walletProvider.request({ method: 'kaia_requestAccounts' }) as string[];
-      if (accounts && accounts.length > 0) {
-        setAccount(accounts[0]);
-        toast.success('Wallet connected successfully! 🎉');
-      }
-    } catch (error) {
-      console.error("Failed to connect wallet", error);
-      toast.error('Failed to connect wallet. Please try again.');
-    }
-  };
 
-  const disconnectWallet = () => {
-    setAccount(null);
-    toast.success('Wallet disconnected');
-  };
 
   const calculateEstimatedRewards = (missionData: typeof newMission) => {
     const targetAmount = parseFloat(missionData.targetAmount) || 0;

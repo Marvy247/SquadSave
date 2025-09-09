@@ -31,15 +31,8 @@ export default function DashboardPage() {
     totalParticipants: 24
   });
 
-  // Confetti state for achievements
+  // Confetti state for achievements - only show when actual achievements are earned
   const [showConfetti, setShowConfetti] = useState(false);
-
-  useEffect(() => {
-    // Example: Show confetti when current streak reaches a milestone
-    if (stats.currentStreak > 10) {
-      setShowConfetti(true);
-    }
-  }, [stats.currentStreak]);
 
   if (sdkLoading) {
     return <PageLoading message="Loading your dashboard..." />;

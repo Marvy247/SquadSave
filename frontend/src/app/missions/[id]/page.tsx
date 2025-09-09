@@ -7,6 +7,7 @@ import { Target, DollarSign, Users, TrendingUp, Clock, Trophy, Flame, Calendar }
 import { getMissionPoolContract } from '@/lib/contracts';
 import useDappPortal from '@/hooks/useDappPortal';
 import { useTheme } from '@/lib/theme-context';
+import { useWallet } from '@/lib/wallet-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -39,9 +40,8 @@ export default function MissionDetailPage() {
   const params = useParams();
   const missionId = params.id as string;
   const { sdk } = useDappPortal();
+  const { account, connectWallet, disconnectWallet } = useWallet();
   const { isDark, toggleDark } = useTheme();
-
-  const [account, setAccount] = useState<string | null>(null);
   const [missionDetails, setMissionDetails] = useState<MissionDetails | null>(null);
   const [participants, setParticipants] = useState([] as string[]);
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
@@ -53,26 +53,7 @@ export default function MissionDetailPage() {
   const progressData = [0, 25, 50, 75, 90, 100];
   const progressLabels = ['Day 1', 'Day 7', 'Day 14', 'Day 21', 'Day 28', 'Day 30'];
 
-  const connectWallet = async () => {
-    if (!sdk) return;
-    try {
-      const walletProvider = sdk.getWalletProvider();
-      const response = await walletProvider.request({ method: 'kaia_requestAccounts' });
-      const accounts = response as string[];
-      if (accounts && accounts.length > 0) {
-        setAccount(accounts[0]);
-        toast.success('Wallet connected successfully! 🎉');
-      }
-    } catch (error) {
-      console.error("Failed to connect wallet", error);
-      toast.error('Failed to connect wallet. Please try again.');
-    }
-  };
 
-  const disconnectWallet = () => {
-    setAccount(null);
-    toast.success('Wallet disconnected');
-  };
 
   const fetchMissionDetails = useCallback(async () => {
     if (!missionId) return;

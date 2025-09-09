@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import useDappPortal from '@/hooks/useDappPortal';
 import { getMissionFactoryContract } from '@/lib/contracts';
 import { useTheme } from '@/lib/theme-context';
+import { useWallet } from '@/lib/wallet-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import Header from '@/components/Header';
@@ -18,7 +19,7 @@ import AchievementNotification, { triggerStreakAchievement, triggerMilestoneAchi
 
 export default function Home() {
   const { sdk, loading, error } = useDappPortal();
-  const [account, setAccount] = useState<string | null>(null);
+  const { account, connectWallet, disconnectWallet } = useWallet();
   const [missionPools, setMissionPools] = useState<string[]>([]);
   const { isDark, toggleDark } = useTheme();
 
@@ -29,34 +30,17 @@ export default function Home() {
     type: 'streak' | 'milestone' | 'achievement' | 'squad';
   } | null>(null);
 
-  const connectWallet = async () => {
-    if (!sdk) return;
-    try {
-      const walletProvider = sdk.getWalletProvider();
-      const accounts = await walletProvider.request({ method: 'kaia_requestAccounts' }) as string[];
-      if (accounts && accounts.length > 0) {
-        setAccount(accounts[0]);
-        toast.success('Wallet connected successfully! 🎉');
-
-        // Example: Trigger a streak achievement notification on connect
-        const streakAch = triggerStreakAchievement(7);
-        if (streakAch) {
-          setAchievement({
-            title: streakAch.title,
-            description: streakAch.description,
-            type: 'streak',
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Failed to connect wallet", error);
-      toast.error('Failed to connect wallet. Please try again.');
+  const handleConnectWallet = async () => {
+    await connectWallet();
+    // Example: Trigger a streak achievement notification on connect
+    const streakAch = triggerStreakAchievement(7);
+    if (streakAch) {
+      setAchievement({
+        title: streakAch.title,
+        description: streakAch.description,
+        type: 'streak',
+      });
     }
-  };
-
-  const disconnectWallet = () => {
-    setAccount(null);
-    toast.success('Wallet disconnected');
   };
 
   const fetchMissionPools = async () => {
@@ -130,7 +114,7 @@ export default function Home() {
           >
             {!account ? (
               <Button
-                onClick={connectWallet}
+                onClick={handleConnectWallet}
                 size="lg"
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
@@ -138,7 +122,7 @@ export default function Home() {
                 Connect Wallet
               </Button>
             ) : (
-              <Link href="/missions/create">
+              <Link href="/dashboard">
                 <Button
                   size="lg"
                   className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-8 py-3 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
@@ -147,9 +131,9 @@ export default function Home() {
                     animate={{ rotate: 360 }}
                     transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                   >
-                    <Plus className="mr-2 h-5 w-5" />
+                    <TrendingUp className="mr-2 h-5 w-5" />
                   </motion.div>
-                  Create Mission
+                  Dashboard
                 </Button>
               </Link>
             )}

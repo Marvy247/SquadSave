@@ -9,6 +9,7 @@ import useDappPortal from '@/hooks/useDappPortal';
 import { getMissionFactoryContract } from '@/lib/contracts';
 import { ethers } from 'ethers';
 import { useTheme } from '@/lib/theme-context';
+import { useWallet } from '@/lib/wallet-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import Header from '@/components/Header';
@@ -25,30 +26,10 @@ interface Mission {
 
 export default function MissionsPage() {
   const { sdk, loading, error } = useDappPortal();
-  const [account, setAccount] = useState<string | null>(null);
+  const { account, connectWallet, disconnectWallet } = useWallet();
   const { isDark, toggleDark } = useTheme();
   const [missions, setMissions] = useState<Mission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const connectWallet = async () => {
-    if (!sdk) return;
-    try {
-      const walletProvider = sdk.getWalletProvider();
-      const accounts = await walletProvider.request({ method: 'kaia_requestAccounts' }) as string[];
-      if (accounts && accounts.length > 0) {
-        setAccount(accounts[0]);
-        toast.success('Wallet connected successfully! 🎉');
-      }
-    } catch (error) {
-      console.error("Failed to connect wallet", error);
-      toast.error('Failed to connect wallet. Please try again.');
-    }
-  };
-
-  const disconnectWallet = () => {
-    setAccount(null);
-    toast.success('Wallet disconnected');
-  };
 
   const fetchMissions = async () => {
     try {

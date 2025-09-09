@@ -13,7 +13,8 @@ const getSdk = async (): Promise<DappPortalSDK> => {
   }
 
   const DappPortalSDK = (await import('@linenext/dapp-portal-sdk')).default;
-  const clientId = process.env.NEXT_DAPP_PORTAL_CLIENT_ID;
+  console.log('NEXT_PUBLIC_DAPP_PORTAL_CLIENT_ID:', process.env.NEXT_PUBLIC_DAPP_PORTAL_CLIENT_ID);
+  const clientId = process.env.NEXT_PUBLIC_DAPP_PORTAL_CLIENT_ID;
 
   if (!clientId) {
     throw new Error('DAPP_PORTAL_CLIENT_ID is not configured in .env');

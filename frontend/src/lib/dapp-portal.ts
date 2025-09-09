@@ -13,7 +13,6 @@ const getSdk = async (): Promise<DappPortalSDK> => {
   }
 
   const DappPortalSDK = (await import('@linenext/dapp-portal-sdk')).default;
-  console.log('NEXT_PUBLIC_DAPP_PORTAL_CLIENT_ID:', process.env.NEXT_PUBLIC_DAPP_PORTAL_CLIENT_ID);
   const clientId = process.env.NEXT_PUBLIC_DAPP_PORTAL_CLIENT_ID;
 
   if (!clientId) {

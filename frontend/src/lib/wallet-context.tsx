@@ -6,7 +6,7 @@ import useDappPortal from '@/hooks/useDappPortal';
 
 interface WalletContextType {
   account: string | null;
-  connectWallet: () => Promise<void>;
+  connectWallet: () => Promise<boolean>;
   disconnectWallet: () => void;
   loading: boolean;
   error: Error | null;
@@ -37,18 +37,21 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
   }, [account]);
 
-  const connectWallet = async () => {
-    if (!sdk) return;
+  const connectWallet = async (): Promise<boolean> => {
+    if (!sdk) return false;
     try {
       const walletProvider = sdk.getWalletProvider();
       const accounts = await walletProvider.request({ method: 'kaia_requestAccounts' }) as string[];
       if (accounts && accounts.length > 0) {
         setAccount(accounts[0]);
         toast.success('Wallet connected successfully! 🎉');
+        return true;
       }
+      return false;
     } catch (error) {
       console.error("Failed to connect wallet", error);
       toast.error('Failed to connect wallet. Please try again.');
+      return false;
     }
   };
 

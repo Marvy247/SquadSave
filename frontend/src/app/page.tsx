@@ -31,15 +31,17 @@ export default function Home() {
   } | null>(null);
 
   const handleConnectWallet = async () => {
-    await connectWallet();
-    // Example: Trigger a streak achievement notification on connect
-    const streakAch = triggerStreakAchievement(7);
-    if (streakAch) {
-      setAchievement({
-        title: streakAch.title,
-        description: streakAch.description,
-        type: 'streak',
-      });
+    const success = await connectWallet();
+    if (success) {
+      // Example: Trigger a streak achievement notification on connect
+      const streakAch = triggerStreakAchievement(7);
+      if (streakAch) {
+        setAchievement({
+          title: streakAch.title,
+          description: streakAch.description,
+          type: 'streak',
+        });
+      }
     }
   };
 

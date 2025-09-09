@@ -1,8 +1,4 @@
 EVENTS_DOCUMENTATION.md
 TODO.md
 .env
-node_modules
-coverage
-coverage.json
-typechain
-typechain-types
+

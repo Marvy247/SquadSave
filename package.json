@@ -1,0 +1,9 @@
+{
+  "name": "kaia-social-savings",
+  "version": "1.0.0",
+  "description": "Social Savings Missions Mini-dApp",
+  "private": true,
+  "devDependencies": {
+    "@openzeppelin/contracts": "^5.0.0"
+  }
+}

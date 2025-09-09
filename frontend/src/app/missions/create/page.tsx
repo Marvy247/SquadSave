@@ -159,6 +159,10 @@ export default function CreateMissionPage() {
       toast.error('Please connect your wallet first.');
       return;
     }
+    if (!sdk) {
+      toast.error('SDK not initialized. Please refresh the page.');
+      return;
+    }
     if (!newMission.targetAmount) {
       toast.error('Please enter a target amount.');
       return;

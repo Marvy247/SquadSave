@@ -6,7 +6,7 @@ import { Target, Users, Clock, TrendingUp, Plus, Trophy, Zap } from 'lucide-reac
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import useDappPortal from '@/hooks/useDappPortal';
-import { getMissionFactoryContract } from '@/lib/contracts';
+import { getMissionFactoryContract, getMissionPoolContract } from '@/lib/contracts';
 import { ethers } from 'ethers';
 import { useTheme } from '@/lib/theme-context';
 import { useWallet } from '@/lib/wallet-context';
@@ -32,16 +32,20 @@ export default function MissionsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchMissions = async () => {
+    if (!sdk) return; // Don't fetch if SDK is not available
+
     try {
       const contract = await getMissionFactoryContract();
-      const missionIds = await contract.getMissionPools();
+      const missionIdsRaw = await contract.getMissionPools();
+      const missionIds = Array.isArray(missionIdsRaw) ? missionIdsRaw : Object.values(missionIdsRaw);
 
       const missionDetails = await Promise.all(
         missionIds.map(async (missionId: string) => {
           try {
-            const missionContract = await contract.getMissionPool(missionId);
+            const missionContract = await getMissionPoolContract(missionId);
             const details = await missionContract.getMissionDetails();
-            const participants = await missionContract.getParticipants() as string[];
+            const participantsRaw = await missionContract.getParticipants();
+            const participants = Array.isArray(participantsRaw) ? participantsRaw : Object.values(participantsRaw);
 
             return {
               id: missionId,
@@ -67,8 +71,13 @@ export default function MissionsPage() {
   };
 
   useEffect(() => {
-    fetchMissions();
-  }, []);
+    if (sdk) {
+      fetchMissions();
+    } else if (!loading) {
+      // If SDK is not available and we're not loading, set loading to false
+      setIsLoading(false);
+    }
+  }, [sdk, loading]);
 
   if (loading) {
     return <PageLoading message="Initializing SquadSave..." />;

@@ -3,6 +3,11 @@ import type DappPortalSDK from '@linenext/dapp-portal-sdk';
 let sdkInstance: DappPortalSDK | null = null;
 
 const getSdk = async (): Promise<DappPortalSDK> => {
+  // Check if we're on the client side
+  if (typeof window === 'undefined') {
+    throw new Error('SDK can only be initialized on the client side');
+  }
+
   if (sdkInstance) {
     return sdkInstance;
   }

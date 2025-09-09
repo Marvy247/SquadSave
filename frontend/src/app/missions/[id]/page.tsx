@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { ethers } from 'ethers';
 import { Target, DollarSign, Users, TrendingUp, Clock, Trophy, Flame, Calendar } from 'lucide-react';
-import { getMissionPoolContract } from '@/lib/contracts';
+import { getMissionPoolContract, getUSDTContract } from '@/lib/contracts';
 import useDappPortal from '@/hooks/useDappPortal';
 import { useTheme } from '@/lib/theme-context';
 import { useWallet } from '@/lib/wallet-context';
@@ -56,7 +56,7 @@ export default function MissionDetailPage() {
 
 
   const fetchMissionDetails = useCallback(async () => {
-    if (!missionId) return;
+    if (!missionId || !sdk) return;
     try {
       const contract = await getMissionPoolContract(missionId);
       const details = await contract.getMissionDetails();
@@ -91,20 +91,50 @@ export default function MissionDetailPage() {
   }, [missionId, sdk, account]);
 
   const handleDeposit = async () => {
-    if (!account || !depositAmount) {
-      toast.error('Please connect wallet and enter amount');
+    if (!account) {
+      toast.error('Please connect your wallet first.');
       return;
     }
+    if (!sdk) {
+      toast.error('SDK not initialized. Please refresh the page.');
+      return;
+    }
+    if (!depositAmount || parseFloat(depositAmount) <= 0) {
+      toast.error('Please enter a valid deposit amount.');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const contract = await getMissionPoolContract(missionId);
-      const tx = await contract.deposit({ value: ethers.parseEther(depositAmount) });
-      await tx.wait();
-      toast.success('Deposit successful! 💰');
+      const usdtContract = await getUSDTContract();
+      const missionContract = await getMissionPoolContract(missionId);
+
+      const amount = ethers.parseEther(depositAmount);
+
+      // Check balance
+      const balance = await usdtContract.balanceOf(account);
+      if (balance < amount) {
+        toast.error('Insufficient USDT balance.');
+        return;
+      }
+
+      // Approve the mission contract to spend USDT
+      const approveTx = await usdtContract.approve(missionId, amount);
+      await approveTx.wait();
+      toast.success('USDT approved for deposit!');
+
+      // Deposit to the mission
+      const depositTx = await missionContract.deposit(amount);
+      await depositTx.wait();
+
+      toast.success('Deposit successful! 🎉');
+
+      // Refresh user progress
+      await fetchMissionDetails();
+
       setDepositAmount('');
-      fetchMissionDetails(); // Refresh details
     } catch (error) {
-      console.error("Failed to deposit", error);
+      console.error('Deposit failed:', error);
       toast.error('Deposit failed. Please try again.');
     } finally {
       setIsLoading(false);
@@ -138,7 +168,7 @@ export default function MissionDetailPage() {
 
   useEffect(() => {
     fetchMissionDetails();
-  }, [fetchMissionDetails]);
+  }, [fetchMissionDetails, sdk]);
 
   if (!missionDetails) {
     return (

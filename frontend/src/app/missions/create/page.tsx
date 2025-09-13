@@ -319,7 +319,7 @@ export default function CreateMissionPage() {
                   >
                     <DollarSign className="h-3 w-3 md:h-4 md:w-4 text-white" />
                   </motion.div>
-                  Target Amount (USDT)
+                  Deposit Amount per Period (USDT)
                 </motion.label>
                 <motion.div
                   whileHover={{ scale: 1.01 }}
@@ -355,7 +355,7 @@ export default function CreateMissionPage() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2, duration: 0.3 }}
                   >
-                    💰 How much do you want to save in total? This is your savings goal!
+                    💰 How much do you want to deposit each period? This amount will be contributed based on the selected cadence, not the total savings goal.
                   </motion.p>
                 )}
               </motion.div>

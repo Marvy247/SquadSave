@@ -270,7 +270,7 @@ export default function MissionDetailPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg">
                     <DollarSign className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-green-600" />
                     <div className="text-lg md:text-xl font-bold text-green-600">${userProgress.totalDeposited}</div>
@@ -286,7 +286,22 @@ export default function MissionDetailPage() {
                     <div className="text-sm md:text-base font-bold text-blue-600">{userProgress.lastDepositTimestamp}</div>
                     <div className="text-xs md:text-sm text-muted-foreground">Last Deposit</div>
                   </div>
+                  <div className={`text-center p-4 rounded-lg ${Date.now() / 1000 > parseInt(userProgress.nextDepositWindow) ? 'bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20' : 'bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20'}`}>
+                    <Clock className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-purple-600" />
+                    <div className="text-sm md:text-base font-bold text-purple-600">{userProgress.nextDepositWindow}</div>
+                    <div className="text-xs md:text-sm text-muted-foreground">Next Deposit Window</div>
+                  </div>
                 </div>
+                {Date.now() / 1000 > parseInt(userProgress.nextDepositWindow) && (
+                  <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <div className="flex items-center">
+                      <div className="text-red-600 mr-2">⚠️</div>
+                      <div className="text-red-800 dark:text-red-200 font-medium">
+                        Deposit Window Missed! Depositing now will reset your current streak to 0.
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="flex justify-center space-x-4">
                   <StreakBadge days={parseInt(userProgress.currentStreak)} />
                   <CompletionBadge />
@@ -312,33 +327,32 @@ export default function MissionDetailPage() {
                   Make a Deposit
                 </h3>
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                  <Input
-                    type="number"
-                    value={depositAmount}
-                    onChange={(e) => setDepositAmount(e.target.value)}
-                    placeholder="Enter amount in USDT"
-                    className="flex-1 h-12 text-base"
-                    disabled
-                  />
-                  <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => quickDeposit('5')} className="px-3 py-2">
-                      $5
-                    </Button>
-                    <Button variant="outline" onClick={() => quickDeposit('10')} className="px-3 py-2">
-                      $10
-                    </Button>
-                    <Button variant="outline" onClick={() => quickDeposit('25')} className="px-3 py-2">
-                      $25
-                    </Button>
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">
+                      Deposit Amount (Fixed per mission)
+                    </label>
+                    <Input
+                      type="number"
+                      value={depositAmount}
+                      placeholder="Fixed deposit amount"
+                      className="h-12 text-base"
+                      readOnly
+                    />
                   </div>
-                  <Button
-                    onClick={handleDeposit}
-                    disabled={isDepositing || !depositAmount}
-                    className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 px-6 py-3"
-                  >
-                    {isDepositing ? 'Depositing...' : 'Deposit 💰'}
-                  </Button>
-                </div>
+              <Button
+                onClick={() => {
+                  const numDeposits = Math.floor(parseInt(missionDetails.duration) / parseInt(missionDetails.cadence));
+                  const totalCommitment = parseFloat(depositAmount) * numDeposits;
+                  if (confirm(`Are you sure you want to deposit $${depositAmount} now?\n\nThis is your contribution for this period. Based on the mission cadence (${Math.floor(parseInt(missionDetails.cadence) / 86400)} day(s)), you will need to make ${numDeposits} deposits in total.\n\nTotal commitment: $${totalCommitment.toFixed(2)}\n\nDepositing now will lock in this period's contribution.`)) {
+                    handleDeposit();
+                  }
+                }}
+                disabled={isDepositing}
+                className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 px-6 py-3"
+              >
+                {isDepositing ? 'Depositing...' : 'Deposit 💰'}
+              </Button>
+            </div>
               </div>
 
               {/* Withdraw Section */}

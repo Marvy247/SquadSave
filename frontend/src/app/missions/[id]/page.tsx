@@ -11,6 +11,7 @@ import { useWallet } from '@/lib/wallet-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProgressChart from '@/components/ProgressChart';
@@ -295,10 +296,6 @@ export default function MissionDetailPage() {
                 {Date.now() / 1000 > parseInt(userProgress.nextDepositWindow) && (
                   <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                     <div className="flex items-center">
-                      <div className="text-red-600 mr-2">⚠️</div>
-                      <div className="text-red-800 dark:text-red-200 font-medium">
-                        Deposit Window Missed! Depositing now will reset your current streak to 0.
-                      </div>
                     </div>
                   </div>
                 )}
@@ -339,19 +336,38 @@ export default function MissionDetailPage() {
                       readOnly
                     />
                   </div>
-              <Button
-                onClick={() => {
-                  const numDeposits = Math.floor(parseInt(missionDetails.duration) / parseInt(missionDetails.cadence));
-                  const totalCommitment = parseFloat(depositAmount) * numDeposits;
-                  if (confirm(`Are you sure you want to deposit $${depositAmount} now?\n\nThis is your contribution for this period. Based on the mission cadence (${Math.floor(parseInt(missionDetails.cadence) / 86400)} day(s)), you will need to make ${numDeposits} deposits in total.\n\nTotal commitment: $${totalCommitment.toFixed(2)}\n\nDepositing now will lock in this period's contribution.`)) {
-                    handleDeposit();
-                  }
-                }}
-                disabled={isDepositing}
-                className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 px-6 py-3"
-              >
-                {isDepositing ? 'Depositing...' : 'Deposit 💰'}
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    disabled={isDepositing}
+                    className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 px-6 py-3"
+                  >
+                    {isDepositing ? 'Depositing...' : 'Deposit 💰'}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Confirm Deposit</DialogTitle>
+                    <DialogDescription>
+                      Are you sure you want to deposit <strong>${depositAmount}</strong> now?
+                      <br />
+                      This is your contribution for this period. Based on the mission cadence (<strong>{Math.floor(parseInt(missionDetails.cadence) / 86400)} day(s)</strong>), you will need to make <strong>{Math.floor(parseInt(missionDetails.duration) / parseInt(missionDetails.cadence))}</strong> deposits in total.
+                      <br />
+                      Total commitment: <strong>${(parseFloat(depositAmount) * Math.floor(parseInt(missionDetails.duration) / parseInt(missionDetails.cadence))).toFixed(2)}</strong>
+                      <br />
+                      Depositing now will lock in this period's contribution.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button onClick={() => handleDeposit()} disabled={isDepositing}>
+                      Confirm
+                    </Button>
+                    <DialogClose asChild>
+                      <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
               </div>
 

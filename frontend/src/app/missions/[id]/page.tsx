@@ -48,6 +48,8 @@ export default function MissionDetailPage() {
   const [depositAmount, setDepositAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isDepositing, setIsDepositing] = useState(false);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   // Mock progress data for chart
   const progressData = [0, 25, 50, 75, 90, 100];
@@ -104,7 +106,7 @@ export default function MissionDetailPage() {
       return;
     }
 
-    setIsLoading(true);
+    setIsDepositing(true);
     try {
       const usdtContract = await getUSDTContract();
       const missionContract = await getMissionPoolContract(missionId);
@@ -115,7 +117,16 @@ export default function MissionDetailPage() {
       const balance = await usdtContract.balanceOf(account);
       if (balance < amount) {
         toast.error('Insufficient USDT balance.');
+        setIsDepositing(false);
         return;
+      }
+
+      // Check if user is participant, if not join mission
+      const participantsList = await missionContract.getParticipants();
+      if (!participantsList.includes(account)) {
+        const joinTx = await missionContract.join();
+        await joinTx.wait();
+        toast.success('Joined mission successfully!');
       }
 
       // Approve the mission contract to spend USDT
@@ -137,7 +148,7 @@ export default function MissionDetailPage() {
       console.error('Deposit failed:', error);
       toast.error('Deposit failed. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsDepositing(false);
     }
   };
 
@@ -146,7 +157,7 @@ export default function MissionDetailPage() {
       toast.error('Please connect wallet and enter amount');
       return;
     }
-    setIsLoading(true);
+    setIsWithdrawing(true);
     try {
       const contract = await getMissionPoolContract(missionId);
       const tx = await contract.withdraw(ethers.parseEther(withdrawAmount));
@@ -158,7 +169,7 @@ export default function MissionDetailPage() {
       console.error("Failed to withdraw", error);
       toast.error('Withdrawal failed. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsWithdrawing(false);
     }
   };
 
@@ -327,10 +338,10 @@ export default function MissionDetailPage() {
                   </div>
                   <Button
                     onClick={handleDeposit}
-                    disabled={isLoading || !depositAmount}
+                    disabled={isDepositing || !depositAmount}
                     className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 px-6 py-3"
                   >
-                    {isLoading ? 'Depositing...' : 'Deposit 💰'}
+                    {isDepositing ? 'Depositing...' : 'Deposit 💰'}
                   </Button>
                 </div>
               </div>
@@ -351,11 +362,11 @@ export default function MissionDetailPage() {
                   />
                   <Button
                     onClick={handleWithdraw}
-                    disabled={isLoading || !withdrawAmount}
+                    disabled={isWithdrawing || !withdrawAmount}
                     variant="outline"
                     className="px-6 py-3"
                   >
-                    {isLoading ? 'Withdrawing...' : 'Withdraw 💸'}
+                    {isWithdrawing ? 'Withdrawing...' : 'Withdraw 💸'}
                   </Button>
                 </div>
               </div>

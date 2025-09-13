@@ -38,9 +38,11 @@ export default function MissionsPage() {
       const contract = await getMissionFactoryContract();
       const missionIdsRaw = await contract.getMissionPools();
       const missionIds = Array.isArray(missionIdsRaw) ? missionIdsRaw : Object.values(missionIdsRaw);
+      // Deduplicate missionIds
+      const uniqueMissionIds = [...new Set(missionIds)];
 
       const missionDetails = await Promise.all(
-        missionIds.map(async (missionId: string) => {
+        uniqueMissionIds.map(async (missionId: string) => {
           try {
             const missionContract = await getMissionPoolContract(missionId);
             const details = await missionContract.getMissionDetails();

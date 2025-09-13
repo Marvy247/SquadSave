@@ -122,7 +122,6 @@ export default function Home() {
                 size="lg"
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-                <Sparkles className="mr-2 h-5 w-5" />
                 Connect Wallet
               </Button>
             ) : (

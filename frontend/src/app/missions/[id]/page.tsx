@@ -355,7 +355,7 @@ export default function MissionDetailPage() {
                       <br />
                       Total commitment: <strong>${(parseFloat(depositAmount) * Math.floor(parseInt(missionDetails.duration) / parseInt(missionDetails.cadence))).toFixed(2)}</strong>
                       <br />
-                      Depositing now will lock in this period's contribution.
+                      Depositing now will lock in this period&apos;s contribution.
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>

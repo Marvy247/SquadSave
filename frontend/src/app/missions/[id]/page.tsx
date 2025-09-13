@@ -64,7 +64,7 @@ export default function MissionDetailPage() {
       const details = await contract.getMissionDetails();
       const participantsList = await contract.getParticipants() as string[];
 
-      setMissionDetails({
+      const missionData = {
         asset: details._asset,
         targetAmount: ethers.formatEther(details._targetAmount),
         cadence: details._cadence.toString(),
@@ -73,8 +73,10 @@ export default function MissionDetailPage() {
         endTime: new Date(Number(details._endTime) * 1000).toLocaleString(),
         yieldStrategy: details._yieldStrategy,
         rewardDistributor: details._rewardDistributor,
-      });
+      };
+      setMissionDetails(missionData);
       setParticipants(participantsList);
+      setDepositAmount(missionData.targetAmount);
 
       if (sdk && account) {
         const userProgressDetails = await contract.getUserProgress(account);
@@ -101,8 +103,8 @@ export default function MissionDetailPage() {
       toast.error('SDK not initialized. Please refresh the page.');
       return;
     }
-    if (!depositAmount || parseFloat(depositAmount) <= 0) {
-      toast.error('Please enter a valid deposit amount.');
+    if (!missionDetails) {
+      toast.error('Mission details not loaded.');
       return;
     }
 
@@ -111,7 +113,7 @@ export default function MissionDetailPage() {
       const usdtContract = await getUSDTContract();
       const missionContract = await getMissionPoolContract(missionId);
 
-      const amount = ethers.parseEther(depositAmount);
+      const amount = ethers.parseEther(missionDetails.targetAmount);
 
       // Check balance
       const balance = await usdtContract.balanceOf(account);
@@ -121,21 +123,13 @@ export default function MissionDetailPage() {
         return;
       }
 
-      // Check if user is participant, if not join mission
-      const participantsList = await missionContract.getParticipants();
-      if (!participantsList.includes(account)) {
-        const joinTx = await missionContract.join();
-        await joinTx.wait();
-        toast.success('Joined mission successfully!');
-      }
-
       // Approve the mission contract to spend USDT
       const approveTx = await usdtContract.approve(missionId, amount);
       await approveTx.wait();
       toast.success('USDT approved for deposit!');
 
-      // Deposit to the mission
-      const depositTx = await missionContract.deposit(amount);
+      // Deposit to the mission (contract deposits targetAmount)
+      const depositTx = await missionContract.deposit();
       await depositTx.wait();
 
       toast.success('Deposit successful! 🎉');
@@ -324,6 +318,7 @@ export default function MissionDetailPage() {
                     onChange={(e) => setDepositAmount(e.target.value)}
                     placeholder="Enter amount in USDT"
                     className="flex-1 h-12 text-base"
+                    disabled
                   />
                   <div className="flex gap-2">
                     <Button variant="outline" onClick={() => quickDeposit('5')} className="px-3 py-2">

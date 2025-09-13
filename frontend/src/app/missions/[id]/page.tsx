@@ -293,12 +293,7 @@ export default function MissionDetailPage() {
                     <div className="text-xs md:text-sm text-muted-foreground">Next Deposit Window</div>
                   </div>
                 </div>
-                {Date.now() / 1000 > parseInt(userProgress.nextDepositWindow) && (
-                  <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                    <div className="flex items-center">
-                    </div>
-                  </div>
-                )}
+                
                 <div className="flex justify-center space-x-4">
                   <StreakBadge days={parseInt(userProgress.currentStreak)} />
                   <CompletionBadge />
@@ -359,9 +354,11 @@ export default function MissionDetailPage() {
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
-                    <Button onClick={() => handleDeposit()} disabled={isDepositing}>
-                      Confirm
-                    </Button>
+                    <DialogClose asChild>
+                      <Button onClick={() => handleDeposit()} disabled={isDepositing}>
+                        Confirm
+                      </Button>
+                    </DialogClose>
                     <DialogClose asChild>
                       <Button variant="outline">Cancel</Button>
                     </DialogClose>

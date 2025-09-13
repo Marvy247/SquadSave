@@ -135,7 +135,18 @@ export default function MissionDetailPage() {
 
       toast.success('Deposit successful! 🎉');
 
-      // Refresh user progress
+      // Update user progress optimistically
+      if (userProgress) {
+        setUserProgress({
+          ...userProgress,
+          totalDeposited: (parseFloat(userProgress.totalDeposited) + parseFloat(depositAmount)).toString(),
+          currentStreak: (parseInt(userProgress.currentStreak) + 1).toString(),
+          lastDepositTimestamp: new Date().toLocaleString(),
+          nextDepositWindow: new Date(Date.now() + parseInt(missionDetails.cadence) * 1000).toLocaleString(),
+        });
+      }
+
+      // Refresh user progress from contract
       await fetchMissionDetails();
 
       setDepositAmount('');
